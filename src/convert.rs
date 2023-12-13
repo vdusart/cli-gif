@@ -1,18 +1,28 @@
-pub struct Frame {
-    pub width: u16,
-    pub height: u16,
+use gif::Frame;
+
+pub struct GifFrame {
+    pub width: u64,
+    pub height: u64,
+    pub delay: u64,
     pub pixels: Vec<(u8, u8, u8)>,
     pub grayscale_chars: Vec<char>,
 }
 
-impl Frame {
-    pub fn new(w: u16, h: u16) -> Self {
-        Frame {
-            width: w,
-            height: h,
+impl GifFrame {
+    pub fn new(f: &Frame) -> Self {
+        let mut frame = GifFrame {
+            width: f.width as u64,
+            height: f.height as u64,
+            delay: 250,
             pixels: Vec::new(),
             grayscale_chars: Vec::new(),
+        };
+        if f.delay > 0 {
+            frame.delay = (f.delay as u64) * 10;
         }
+        frame.add_pixels(f.buffer.to_vec());
+        frame.create_grayscale();
+        frame
     }
 
     pub fn add_pixels(&mut self, buffer: Vec<u8>) {
